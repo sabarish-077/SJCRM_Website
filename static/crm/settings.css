@@ -1,0 +1,2 @@
+.settings-actions{display:flex;gap:5px;margin-left:4px}.settings-actions form{display:inline}
+@media(max-width:560px){.simple-row{flex-wrap:wrap;padding:8px 0}.settings-actions{margin-left:auto}}

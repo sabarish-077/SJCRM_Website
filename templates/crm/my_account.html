@@ -1,0 +1,10 @@
+{% extends 'crm/base.html' %}
+{% block title %}My account{% endblock %}
+{% block breadcrumb %}My account{% endblock %}
+{% block content %}
+<section class="page-intro"><div><span class="eyebrow"><i></i> ACCOUNT</span><h1>My account</h1><p>Update your profile and manage how you sign in.</p></div></section>
+<section class="content-grid two-col">
+  <div class="panel"><div class="panel-head"><div><span class="eyebrow">PROFILE</span><h2>Personal details</h2></div></div><form method="post" class="inline-form">{% csrf_token %}<label for="first-name">First name</label><input class="form-control" id="first-name" name="first_name" maxlength="150" value="{{ request.user.first_name }}" autocomplete="given-name"><label for="last-name">Last name</label><input class="form-control" id="last-name" name="last_name" maxlength="150" value="{{ request.user.last_name }}" autocomplete="family-name"><button class="button primary" type="submit">Save changes</button></form></div>
+  <div class="panel"><div class="panel-head"><div><span class="eyebrow">SIGN IN</span><h2>Account options</h2></div></div><div class="account-options"><div><b>{{ request.user.email }}</b><small>Your verified sign-in email</small></div><a class="button secondary" href="{% url 'account_email' %}">Change email</a><a class="button secondary" href="{% url 'password_reset' %}">Change password</a>{% if request.user.role == 'admin' or request.user.is_superuser %}<a class="button primary" href="{% url 'manage_users' %}">Create team account</a>{% endif %}</div></div>
+</section>
+{% endblock %}

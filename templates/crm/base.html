@@ -1,0 +1,49 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8faff"><title>{% block title %}Orbit CRM{% endblock %} · Orbit CRM</title>
+  <link rel="stylesheet" href="{% static 'crm/app.css' %}">
+  <link rel="stylesheet" href="{% static 'crm/settings.css' %}">
+  <link rel="stylesheet" href="{% static 'crm/account.css' %}">
+  <link rel="stylesheet" href="{% static 'crm/email_change.css' %}">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">O</span><span>Orbit CRM</span></a>
+    <div class="workspace"><span class="workspace-dot"></span><span>Enterprise workspace</span><span class="caret">⌄</span></div>
+    <nav class="nav" aria-label="Main navigation">
+      <span class="nav-label">WORKSPACE</span>
+      <a href="{% url 'dashboard' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}"><span>▦</span>Dashboard</a>
+      <a href="/leads/" class="nav-link {% if module == 'leads' %}active{% endif %}"><span>♧</span>Leads</a>
+      <a href="/contacts/" class="nav-link {% if module == 'contacts' %}active{% endif %}"><span>♙</span>Contacts</a>
+      <a href="/companies/" class="nav-link {% if module == 'companies' %}active{% endif %}"><span>▥</span>Companies</a>
+      <a href="/deals/" class="nav-link {% if module == 'deals' %}active{% endif %}"><span>◈</span>Deals</a>
+      <a href="/support/" class="nav-link {% if module == 'support' %}active{% endif %}"><span>⌕</span>Support</a>
+      <a href="/tasks/" class="nav-link {% if module == 'tasks' %}active{% endif %}"><span>☑</span>Tasks</a>
+      <a href="/campaigns/" class="nav-link {% if module == 'campaigns' %}active{% endif %}"><span>◉</span>Campaigns</a>
+      <a href="{% url 'reports' %}" class="nav-link {% if request.path == '/reports/' %}active{% endif %}"><span>▥</span>Reports</a>
+      <span class="nav-label nav-label-lower">MANAGE</span>
+      {% if request.user.role == 'admin' or request.user.is_superuser %}<a href="{% url 'settings' %}" class="nav-link {% if request.path|slice:':10' == '/settings/' %}active{% endif %}"><span>⚙</span>Settings</a>{% endif %}
+      {% if request.user.role == 'admin' or request.user.role == 'manager' or request.user.is_superuser %}<a href="{% url 'audit_log' %}" class="nav-link {% if request.path == '/audit/' %}active{% endif %}"><span>◷</span>Audit log</a>{% endif %}
+    </nav>
+    <div class="sidebar-bottom"><div class="team-card"><span class="team-symbol">✣</span><div><strong>{% if request.user.team %}{{ request.user.team.name }}{% else %}My workspace{% endif %}</strong><small>{{ request.user.get_role_display }}</small></div></div>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="logout-link" type="submit"><span>↪</span>Sign out</button></form>
+    </div>
+  </aside>
+  <div class="main-column">
+    <header class="topbar"><button type="button" class="mobile-menu" aria-label="Open menu" data-menu-toggle>☰</button><div class="crumb"><span>Orbit CRM</span><b>›</b><strong>{% block breadcrumb %}Workspace{% endblock %}</strong></div>
+      <form class="global-search" action="{% url 'global_search' %}" method="get"><span>⌕</span><input name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search leads, contacts, deals…" aria-label="Search CRM"><kbd>↵</kbd></form>
+      <div class="top-actions"><span class="online-dot" title="Workspace ready"></span><details class="account-menu"><summary class="user-chip"><span class="avatar avatar-blue">{{ request.user.email|first|upper }}</span><span class="user-name">{{ request.user.get_full_name|default:request.user.email }}<small>{{ request.user.get_role_display }}</small></span><span class="account-caret">⌄</span></summary><div class="account-popover"><span class="account-email">{{ request.user.email }}</span><a href="{% url 'my_account' %}">My account</a><a href="{% url 'account_email' %}">Change email</a>{% if request.user.role == 'admin' or request.user.is_superuser %}<a href="{% url 'manage_users' %}">Create team account</a>{% endif %}<form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Sign out</button></form></div></details></div>
+    </header>
+    <main class="content">
+      {% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+      {% block content %}{% endblock %}
+      <footer class="footer"><span>Orbit CRM</span><span>Customer relationships, connected.</span></footer>
+    </main>
+  </div>
+</div>
+<script src="{% static 'crm/app.js' %}" defer></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{% extends 'crm/base.html' %}
+{% block title %}Teams{% endblock %}
+{% block breadcrumb %}<a href="{% url 'settings' %}">Settings</a> › Teams{% endblock %}
+{% block content %}
+<section class="page-intro"><div><span class="eyebrow"><i></i> WORKSPACE ADMINISTRATION</span><h1>Teams</h1><p>Group records and staff into shared workspaces.</p></div></section>
+<section class="content-grid two-col">
+  <div class="panel"><div class="panel-head"><div><span class="eyebrow">CURRENT TEAMS</span><h2>Teams</h2></div></div><div class="simple-list">
+    {% for team in teams %}<div class="simple-row"><span class="team-symbol">✣</span><b>{{ team.name }}</b><span class="badge slate">{{ team.members.count }} members</span><span class="settings-actions"><a class="icon-action" href="{% url 'edit_team' team.pk %}" aria-label="Edit {{ team.name }}">✎</a><form method="post" action="{% url 'remove_team' team.pk %}" data-confirm="Remove {{ team.name }}? Members and records will be kept but unassigned.">{% csrf_token %}<button class="icon-action danger" type="submit" aria-label="Remove {{ team.name }}">×</button></form></span></div>
+    {% empty %}<div class="empty-state compact"><b>No teams created</b><small>Create the first team to organize CRM access.</small></div>{% endfor %}
+  </div></div>
+  <div class="panel"><div class="panel-head"><div><span class="eyebrow">{% if editing_team %}EDIT TEAM{% else %}CREATE{% endif %}</span><h2>{% if editing_team %}Edit team{% else %}New team{% endif %}</h2></div></div><form method="post" class="inline-form"{% if editing_team %} action="{% url 'edit_team' editing_team.pk %}"{% endif %}>{% csrf_token %}<label for="team-name">Team name</label><input class="form-control" id="team-name" name="name" maxlength="120" value="{% if editing_team %}{{ editing_team.name }}{% endif %}" required><button class="button primary" type="submit">{% if editing_team %}Save changes{% else %}Create team{% endif %}</button>{% if editing_team %}<a class="button secondary" href="{% url 'manage_teams' %}">Cancel</a>{% endif %}</form></div>
+</section>
+{% endblock %}

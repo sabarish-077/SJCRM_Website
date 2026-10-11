@@ -1,0 +1,100 @@
+{% load static socialaccount %}
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Sign in · Orbit CRM</title>
+        <link rel="stylesheet" href="{% static 'crm/app.css' %}">
+    </head>
+    <body class="auth-body">
+        <main class="auth-layout">
+            <section class="auth-story">
+                <a class="brand" href="/login/">
+                    <span class="brand-mark">O</span>
+                    <span>Orbit CRM</span>
+                </a>
+
+                <span class="eyebrow"><i></i> RELATIONSHIPS, CONNECTED</span>
+                <h1>One clear view of every customer.</h1>
+                <p>Bring your sales, support, and customer operations into one calm, connected workspace.</p>
+
+                <div class="auth-visual">
+                    <div class="visual-orbit"></div>
+                    <div class="visual-card back-card"></div>
+
+                    <div class="visual-card front-card">
+                        <span class="front-icon">O</span>
+                        <b>Customer 360</b>
+                        <small>All the context you need</small>
+                        <span class="front-line"></span>
+                        <span class="front-line short"></span>
+                    </div>
+
+                    <span class="float-chip login-chip-one">✉</span>
+                    <span class="float-chip login-chip-two">▥</span>
+                </div>
+            </section>
+
+            <section class="auth-side">
+                <div class="auth-card">
+                    <span class="eyebrow">WELCOME BACK</span>
+                    <h2>Sign in to Orbit CRM</h2>
+                    <p class="auth-help">Use your company email and password.</p>
+
+                    {% if request.GET.reset == 'sent' %}
+                        <div class="message success">If the email is registered, a password setup link was sent.</div>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'login' %}" class="auth-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+                        {% if form.non_field_errors %}
+                            <div class="form-errors">{{ form.non_field_errors|striptags }}</div>
+                        {% endif %}
+
+                        <label for="id_username">Work email</label>
+                        <input class="form-control" type="email" name="username" id="id_username" autocomplete="username" value="{{ form.username.value|default:'' }}" required>
+
+                        {% for error in form.username.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                        <label for="id_password">Password</label>
+                        <input class="form-control" type="password" name="password" id="id_password" autocomplete="current-password" required>
+
+                        {% for error in form.password.errors %}
+                            <span class="field-error">{{ error }}</span>
+                        {% endfor %}
+
+                        <button class="button primary auth-submit" type="submit">
+                            Sign in <span>→</span>
+                        </button>
+                    </form>
+
+                    <a class="forgot-link" href="{% url 'password_reset' %}">Forgot password?</a>
+
+                    {% if google_enabled %}
+                        <div class="auth-divider"><span>or continue with</span></div>
+                        <form method="post" action="{% provider_login_url 'google' process='login' %}">
+                            {% csrf_token %}
+                            <button class="button google-button" type="submit">
+                                <span class="google-g">G</span> Continue with Google
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    <div class="auth-divider"><span>new to Orbit?</span></div>
+                    <a class="button secondary auth-submit" href="{% url 'account_signup' %}">
+                        Create account <span>→</span>
+                    </a>
+                    <p class="auth-footnote">New accounts must verify their email before access is granted.</p>
+                </div>
+
+                <span class="auth-copyright">© Orbit CRM · Secure workspace</span>
+            </section>
+        </main>
+    </body>
+</html>
+
