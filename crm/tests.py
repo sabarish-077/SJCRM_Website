@@ -3,6 +3,7 @@ from django.contrib.auth.hashers import get_hasher
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
+from orbit_crm.settings import database_config
 from django.urls import reverse
 
 from .forms import form_for
@@ -145,3 +146,11 @@ class AuthenticationHardeningTests(TestCase):
         with self.assertRaises(ValidationError):
             validate_password("weak", self.user)
         validate_password("Strong-and-unique-For-Tests-93!", self.user)
+
+
+class DatabaseConfigurationTests(TestCase):
+    def test_postgres_uses_tls_and_transaction_pooler_safe_options(self):
+        config = database_config("postgresql://user:masked@db.example.invalid:6543/app")
+        self.assertEqual(config["OPTIONS"]["sslmode"], "require")
+        self.assertIsNone(config["OPTIONS"]["prepare_threshold"])
+        self.assertEqual(config["CONN_MAX_AGE"], 0)

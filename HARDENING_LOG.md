@@ -29,6 +29,14 @@ Password-reset email throttling is not currently implemented. A safe shared rate
 
 **Checks:** `manage.py check` passed; all 9 tests passed; `git diff --check` passed.
 
+## Step 5 — Protect the database connection
+
+**Done.** The query review found no raw SQL, cursor execution, or hand-built SQL; record queries use Django's ORM. I found that settings asked the URL parser for SSL, then accidentally replaced all of the parsed database options while setting the Supabase pooler option. The code now explicitly keeps `sslmode=require` and `prepare_threshold=None` together, with no persistent connections. A fast unit test checks that configuration without connecting to any database.
+
+The actual Supabase database username, superuser/BYPASSRLS status, grants, and table RLS flags cannot be verified from source. Read-only SQL and a least-privilege review are in `MANUAL_TODO.md`. No production database was contacted or changed; no migration was run.
+
+**Checks:** `manage.py check` passed; all 10 tests passed; `git diff --check` passed.
+
 ## Step 2 — Scan secrets and environment settings
 
 **Done.** Scanned current source and reachable Git history for common private-key, cloud-token, OAuth-key, and credentialed-database-URL shapes. The scan found no matches; it printed no secret values. `.env` is ignored and untracked; `.env.example` is the only environment file in Git and contains blank secret fields. Existing `.gitignore` rules already cover `.env` and `.env.*` while allowing `.env.example`, so they were left intact.

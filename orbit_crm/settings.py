@@ -52,13 +52,25 @@ WSGI_APPLICATION = "orbit_crm.wsgi.application"
 ASGI_APPLICATION = "orbit_crm.asgi.application"
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
-if DATABASE_URL:
+
+
+def database_config(database_url):
     import dj_database_url
-    DATABASES = {"default": dj_database_url.parse(
-        DATABASE_URL, conn_max_age=0, ssl_require=True,
-        conn_health_checks=True,
-    )}
-    DATABASES["default"]["OPTIONS"] = {"prepare_threshold": None}
+
+    config = dj_database_url.parse(
+        database_url, conn_max_age=0, ssl_require=True, conn_health_checks=True,
+    )
+    # Keep TLS mandatory while retaining the no-prepare setting for Supabase's
+    # transaction pooler. Do not replace OPTIONS: the parser stores sslmode there.
+    config.setdefault("OPTIONS", {}).update({
+        "sslmode": "require",
+        "prepare_threshold": None,
+    })
+    return config
+
+
+if DATABASE_URL:
+    DATABASES = {"default": database_config(DATABASE_URL)}
 elif DEBUG:
     DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
 else:
