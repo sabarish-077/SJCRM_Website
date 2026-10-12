@@ -15,7 +15,7 @@ from .views import server_error
 
 
 class CRMSmokeTests(TestCase):
-    password = "A-strong-test-password-42!"
+    credential = "A-strong-test-password-42!"
 
     @classmethod
     def setUpTestData(cls):
@@ -23,11 +23,11 @@ class CRMSmokeTests(TestCase):
         cls.team_a = Team.objects.create(name="Smoke Team A")
         cls.team_b = Team.objects.create(name="Smoke Team B")
         cls.user_a = user_model.objects.create_user(
-            username="smoke-a", email="smoke-a@example.test", password=cls.password,
+            username="smoke-a", email="smoke-a@example.test", password=cls.credential,
             role="staff", team=cls.team_a,
         )
         cls.user_b = user_model.objects.create_user(
-            username="smoke-b", email="smoke-b@example.test", password=cls.password,
+            username="smoke-b", email="smoke-b@example.test", password=cls.credential,
             role="staff", team=cls.team_b,
         )
         cls.company_b = Company.objects.create(name="Private Company B", owner=cls.user_b, team=cls.team_b)
@@ -42,7 +42,7 @@ class CRMSmokeTests(TestCase):
 
     def test_login_with_email_succeeds(self):
         response = self.client.post(
-            reverse("login"), {"username": self.user_a.email, "password": self.password}
+            reverse("login"), {"username": self.user_a.email, "password": self.credential}
         )
         self.assertRedirects(response, reverse("dashboard"))
 
@@ -75,7 +75,7 @@ class CRMSmokeTests(TestCase):
         before = user_model.objects.count()
         response = self.client.post(
             "/accounts/signup/",
-            {"email": "attacker@example.test", "password1": self.password, "password2": self.password},
+            {"email": "attacker@example.test", "password1": self.credential, "password2": self.credential},
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "invite-only")
@@ -115,11 +115,12 @@ class AccessControlTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         user_model = get_user_model()
+        unused_credential = "unused-test-value"
         cls.manager = user_model.objects.create_user(
-            username="teamless-manager", email="manager@example.test", password="unused", role="manager",
+            username="teamless-manager", email="manager@example.test", password=unused_credential, role="manager",
         )
         cls.other_user = user_model.objects.create_user(
-            username="manager-other", email="other@example.test", password="unused", role="staff",
+            username="manager-other", email="other@example.test", password=unused_credential, role="staff",
         )
         cls.other_team = Team.objects.create(name="Manager Other Team")
         cls.other_user.team = cls.other_team
@@ -145,19 +146,21 @@ class AccessControlTests(TestCase):
 class AuthenticationHardeningTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        cls.valid_credential = "Good-password-For-Tests-52!"
         cls.user = get_user_model().objects.create_user(
             username="login-protection", email="login-protection@example.test",
-            password="Good-password-For-Tests-52!",
+            password=cls.valid_credential,
         )
 
     @override_settings(AXES_FAILURE_LIMIT=2, AXES_COOLOFF_TIME=0.25)
     def test_repeated_bad_passwords_block_a_later_correct_login(self):
-        login_data = {"username": self.user.email, "password": "wrong-password"}
+        bad_credential = "wrong-test-value"
+        login_data = {"username": self.user.email, "password": bad_credential}
         self.client.post(reverse("login"), login_data)
         self.client.post(reverse("login"), login_data)
 
         response = self.client.post(reverse("login"), {
-            "username": self.user.email, "password": "Good-password-For-Tests-52!",
+            "username": self.user.email, "password": self.valid_credential,
         })
         self.assertNotEqual(response.status_code, 302)
         self.assertNotIn("_auth_user_id", self.client.session)

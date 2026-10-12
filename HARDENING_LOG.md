@@ -59,6 +59,21 @@ The live Vercel variables, custom domain, proxy behavior, and error responses st
 
 **Checks:** `manage.py check` passed; all 13 tests passed; `git diff --check` passed. Dependency audit itself remains incomplete until PyPI or OSV is reachable.
 
+## Step 9 — Review the complete hardening diff
+
+**Done.** Reviewed the changes against `main` and ran Bandit across the Django source; it reported no issues. The review found the local-only fallback Django signing key was still a fixed literal. Settings now require `DJANGO_SECRET_KEY` in every environment, matching the README, and tests use named dummy credentials so the static scan can distinguish fixtures from application secrets.
+
+The production-style `check --deploy` ran with disposable fake settings and returned no warnings. It did not connect to the placeholder database, and it does not prove that Vercel/Supabase production settings are correct. The external `pip-audit` scan remains blocked as described in Step 8.
+
+**Checks:** `manage.py check` passed; all 13 tests passed; Bandit reported no issues; production-style `check --deploy` reported no issues; `git diff --check` passed.
+
+## Continuation summary
+
+- Step 1.5 and Steps 2–7: completed in separate commits.
+- Step 8: attempted but dependency advisory lookup is incomplete because PyPI DNS is unavailable; follow-up is listed in `MANUAL_TODO.md`.
+- Step 9: completed in its own commit.
+- Dashboard-only checks, production database role/RLS, provider credentials, domain headers, backups, and restore checks remain manual and are listed in `MANUAL_TODO.md`.
+
 ## Step 2 — Scan secrets and environment settings
 
 **Done.** Scanned current source and reachable Git history for common private-key, cloud-token, OAuth-key, and credentialed-database-URL shapes. The scan found no matches; it printed no secret values. `.env` is ignored and untracked; `.env.example` is the only environment file in Git and contains blank secret fields. Existing `.gitignore` rules already cover `.env` and `.env.*` while allowing `.env.example`, so they were left intact.

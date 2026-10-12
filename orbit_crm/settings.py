@@ -7,10 +7,7 @@ load_dotenv(BASE_DIR / ".env")
 DEBUG = os.environ.get("DJANGO_DEBUG", "false").lower() == "true"
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
-    if DEBUG:
-        SECRET_KEY = "local-development-only-not-for-production"
-    else:
-        raise RuntimeError("Set DJANGO_SECRET_KEY in the deployment environment.")
+    raise RuntimeError("Set DJANGO_SECRET_KEY in the environment.")
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
 for vercel_host_var in ("VERCEL_URL", "VERCEL_BRANCH_URL", "VERCEL_PROJECT_PRODUCTION_URL"):
     vercel_host = os.environ.get(vercel_host_var, "").strip()
