@@ -53,6 +53,12 @@ The live Vercel variables, custom domain, proxy behavior, and error responses st
 
 **Checks:** `manage.py check` passed; all 13 tests passed; `git diff --check` passed.
 
+## Step 8 — Check dependency advisories
+
+**Attempted, blocked by network.** Installed `pip-audit` in the ignored local virtual environment and attempted both a requirements scan and an installed-environment scan. The first attempt needed a temporary environment; after redirecting its temporary files to the ignored `.venv`, the scanner could not resolve `pypi.org` for vulnerability data. No advisory result was produced. No dependency versions were changed because that would be guessing without a scan result. The ranges remain unlocked, so an online CI/developer run and a lockfile review are still needed.
+
+**Checks:** `manage.py check` passed; all 13 tests passed; `git diff --check` passed. Dependency audit itself remains incomplete until PyPI or OSV is reachable.
+
 ## Step 2 — Scan secrets and environment settings
 
 **Done.** Scanned current source and reachable Git history for common private-key, cloud-token, OAuth-key, and credentialed-database-URL shapes. The scan found no matches; it printed no secret values. `.env` is ignored and untracked; `.env.example` is the only environment file in Git and contains blank secret fields. Existing `.gitignore` rules already cover `.env` and `.env.*` while allowing `.env.example`, so they were left intact.

@@ -8,6 +8,11 @@ These tasks need access to deployment or database controls that are not in this 
 - [ ] Rotation inventory (values intentionally masked/not read): `DJANGO_SECRET_KEY` (invalidate app sessions when rotated), `DATABASE_URL` (Supabase database username/password), `GOOGLE_OAUTH_CLIENT_SECRET`, and `EMAIL_HOST_PASSWORD`. Rotate only the credentials confirmed as exposed, then update the matching Vercel environment and redeploy.
 - [ ] Confirm branch protection requires review and passing CI for `main`.
 
+## Dependency audit
+
+- [ ] Run `pip-audit -r requirements.txt` and an installed-environment audit from online CI or a network-enabled developer machine. The local scan could not resolve `pypi.org`, so it produced no vulnerability result.
+- [ ] Review any reported advisories and upgrade in small related batches. Keep `requirements.txt` and `pyproject.toml` aligned, run the full test/check suite after each batch, and add a generated lock/constraints file once the resolver can reach the package index.
+
 ## Hosting and database
 
 - [ ] In Vercel, verify production-only values for `DJANGO_SECRET_KEY`, `DATABASE_URL`, `ALLOWED_HOSTS`, and `CSRF_TRUSTED_ORIGINS`; keep Preview on a separate database.
