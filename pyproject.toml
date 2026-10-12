@@ -1,2 +1,16 @@
+[project]
+name = "sjcrm-website"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "Django>=5.2,<5.3",
+    "django-allauth[socialaccount]>=65.19,<66",
+    "django-axes[ipware]>=8.3,<9",
+    "dj-database-url>=2.3,<3",
+    "psycopg[binary]>=3.2,<4",
+    "argon2-cffi>=23.1,<26",
+    "python-dotenv>=1,<2",
+]
+
 [tool.vercel.scripts]
 build = "python manage.py migrate --noinput"
