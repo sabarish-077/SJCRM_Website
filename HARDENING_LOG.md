@@ -14,3 +14,11 @@ This is the plain-language notebook for the hardening work. Each numbered step g
 **Done.** Added a small Django test suite for email login, anonymous redirects, cross-team lead/contact/deal visibility and edits, invite-only signup, and the main logged-in CRM pages. This is like checking that the front door opens for a teammate and stays locked to strangers.
 
 **Checks:** `manage.py check` passed; all 5 smoke tests passed; `git diff --check` passed.
+
+## Step 2 — Scan secrets and environment settings
+
+**Done.** Scanned current source and reachable Git history for common private-key, cloud-token, OAuth-key, and credentialed-database-URL shapes. The scan found no matches; it printed no secret values. `.env` is ignored and untracked; `.env.example` is the only environment file in Git and contains blank secret fields. Existing `.gitignore` rules already cover `.env` and `.env.*` while allowing `.env.example`, so they were left intact.
+
+The application reads its signing key, database URL, allowed hosts, trusted origins, OAuth secret, and email credentials from environment variables. The rotation checklist in `MANUAL_TODO.md` lists the relevant credential names with all values masked. A pattern scan cannot prove that no unknown/custom credential format exists; GitHub secret scanning and provider logs still need a human review.
+
+**Checks:** `manage.py check` passed; all 5 smoke tests passed; `git diff --check` passed.

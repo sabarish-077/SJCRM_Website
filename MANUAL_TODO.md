@@ -4,7 +4,8 @@ These tasks need access to deployment or database controls that are not in this 
 
 ## Secret rotation and repository controls
 
-- [ ] Review GitHub secret-scanning results and access logs. If a live credential was ever committed, exposed in an issue, or shown in a deployment log, rotate it with its provider and update Vercel Production/Preview variables. Never record the value here.
+- [ ] Review GitHub secret-scanning results and access logs. If any live credential was ever committed, exposed in an issue, or shown in a deployment log, rotate it with its provider and update Vercel Production/Preview variables. Never record the value here.
+- [ ] Rotation inventory (values intentionally masked/not read): `DJANGO_SECRET_KEY` (invalidate app sessions when rotated), `DATABASE_URL` (Supabase database username/password), `GOOGLE_OAUTH_CLIENT_SECRET`, and `EMAIL_HOST_PASSWORD`. Rotate only the credentials confirmed as exposed, then update the matching Vercel environment and redeploy.
 - [ ] Confirm branch protection requires review and passing CI for `main`.
 
 ## Hosting and database
