@@ -1,5 +1,8 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.contrib.auth.hashers import get_hasher
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .forms import form_for
@@ -115,3 +118,30 @@ class AccessControlTests(TestCase):
         response = self.client.get(reverse("admin:index"))
         self.assertEqual(response.status_code, 302)
         self.assertIn("/admin/login/", response["Location"])
+
+
+class AuthenticationHardeningTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(
+            username="login-protection", email="login-protection@example.test",
+            password="Good-password-For-Tests-52!",
+        )
+
+    @override_settings(AXES_FAILURE_LIMIT=2, AXES_COOLOFF_TIME=0.25)
+    def test_repeated_bad_passwords_block_a_later_correct_login(self):
+        login_data = {"username": self.user.email, "password": "wrong-password"}
+        self.client.post(reverse("login"), login_data)
+        self.client.post(reverse("login"), login_data)
+
+        response = self.client.post(reverse("login"), {
+            "username": self.user.email, "password": "Good-password-For-Tests-52!",
+        })
+        self.assertNotEqual(response.status_code, 302)
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_argon2_and_password_validators_are_active(self):
+        self.assertEqual(get_hasher().algorithm, "argon2")
+        with self.assertRaises(ValidationError):
+            validate_password("weak", self.user)
+        validate_password("Strong-and-unique-For-Tests-93!", self.user)

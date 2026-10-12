@@ -15,3 +15,4 @@ These tasks need access to deployment or database controls that are not in this 
 - [ ] Confirm backups/PITR and complete a restore drill in a separate project. Never test restore on production.
 - [ ] Review SMTP sender authentication, Google OAuth callback/allowed origins, provider-side rate limits, and live response headers.
 - [ ] Verify the intended production operators have Django `is_superuser` access for `/admin/`; a CRM role named `admin` alone no longer grants Django Admin access.
+- [ ] Configure a shared per-IP and per-account/email request limit for `/password-reset/` at Vercel or the mail provider; keep its response generic. Confirm the limit works across serverless instances.

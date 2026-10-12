@@ -21,6 +21,14 @@ This is the plain-language notebook for the hardening work. Each numbered step g
 
 **Checks:** `manage.py check` passed; all 7 tests passed; `git diff --check` passed.
 
+## Step 4 — Slow down password guessing
+
+**Done.** The app already has django-axes: five failures lock out the username or IP, with a 15-minute cool-off. The installed version was checked: the two separate lockout keys mean either one can trigger the lock. Argon2 is the active password hasher, and Django's similarity, 12-character minimum, common-password, and numeric-only validators are enabled. Added tests proving a valid password is rejected after repeated failures and weak passwords fail validation.
+
+Password-reset email throttling is not currently implemented. A safe shared rate limit should be configured at the hosting/email edge; a per-process counter would reset between serverless requests. This remains in `MANUAL_TODO.md`.
+
+**Checks:** `manage.py check` passed; all 9 tests passed; `git diff --check` passed.
+
 ## Step 2 — Scan secrets and environment settings
 
 **Done.** Scanned current source and reachable Git history for common private-key, cloud-token, OAuth-key, and credentialed-database-URL shapes. The scan found no matches; it printed no secret values. `.env` is ignored and untracked; `.env.example` is the only environment file in Git and contains blank secret fields. Existing `.gitignore` rules already cover `.env` and `.env.*` while allowing `.env.example`, so they were left intact.
