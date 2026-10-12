@@ -1,0 +1,21 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block head_title %}Email confirmation{% endblock %} · SJCRM</title>
+  <link rel="stylesheet" href="{% static 'crm/app.css' %}">
+</head>
+<body class="auth-body">
+  <main class="reset-card">
+    <a class="brand" href="{% url 'login' %}" aria-label="SJCRM sign in">
+      <span class="brand-mark">SJ</span><span>SJCRM</span>
+    </a>
+    <span class="eyebrow">SMART JOURNEY · ACCOUNT SECURITY</span>
+    {% block content %}{% endblock %}
+    <a class="forgot-link" href="{% url 'login' %}">Back to sign in</a>
+    <p class="auth-footnote">SJCRM · Smart Journey Customer Relationship Management</p>
+  </main>
+</body>
+</html>

@@ -13,7 +13,7 @@
 <div class="shell">
   <aside class="sidebar" id="sidebar">
     <a class="brand" href="{% url 'dashboard' %}" aria-label="SJCRM — Smart Journey Customer Relationship Management"><span class="brand-mark">SJ</span><span>SJCRM</span></a>
-    <div class="workspace"><span class="workspace-dot"></span><span>Enterprise workspace</span><span class="caret">⌄</span></div>
+    <a class="workspace" href="{% url 'dashboard' %}" aria-label="Open my workspace"><span class="workspace-dot"></span><span>My workspace</span><span class="caret">↗</span></a>
     <nav class="nav" aria-label="Main navigation">
       <span class="nav-label">WORKSPACE</span>
       <a href="{% url 'dashboard' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}"><span>▦</span>Dashboard</a>

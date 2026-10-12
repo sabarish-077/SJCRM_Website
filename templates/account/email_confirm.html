@@ -1,0 +1,26 @@
+{% extends "account/base_entrance.html" %}
+{% block head_title %}Confirm your email{% endblock %}
+{% block content %}
+  {% if confirmation %}
+    {% if can_confirm %}
+      <span class="eyebrow">ONE LAST STEP</span>
+      <h1>Confirm your email</h1>
+      <p>Confirm <strong>{{ confirmation.email_address.email }}</strong> to finish setting up your SJCRM account.</p>
+      {% url 'account_confirm_email' confirmation.key as action_url %}
+      <form method="post" action="{{ action_url }}">
+        {% csrf_token %}
+        {{ redirect_field }}
+        <button class="button primary auth-submit" type="submit">Confirm email <span>→</span></button>
+      </form>
+    {% else %}
+      <span class="eyebrow">EMAIL ALREADY USED</span>
+      <h1>Unable to confirm this email</h1>
+      <p>This email address is already confirmed by another account. Sign in with that account or contact your workspace administrator.</p>
+    {% endif %}
+  {% else %}
+    <span class="eyebrow">LINK EXPIRED</span>
+    <h1>This link is no longer valid</h1>
+    <p>The confirmation link may have expired or already been used. Sign in and request a new confirmation email.</p>
+    <a class="button secondary" href="{% url 'account_signup' %}">Create account again</a>
+  {% endif %}
+{% endblock %}

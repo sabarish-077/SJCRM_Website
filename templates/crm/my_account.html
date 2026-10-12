@@ -28,11 +28,14 @@
       </div>
     </div>
     <div class="account-options">
-      <div><b>{{ request.user.email }}</b><small>Your verified sign-in email</small></div><a class="button secondary"
-        href="{% url 'account_email' %}">Change email</a><a class="button secondary"
-        href="{% url 'password_reset' %}">Change password</a>{% if request.user.role == 'admin' or
-      request.user.is_superuser %}<a class="button primary" href="{% url 'manage_users' %}">Create team account</a>{%
-      endif %}
+      <div><b>{{ request.user.email }}</b><small>Your verified sign-in email</small></div>
+      <a class="button secondary" href="{% url 'dashboard' %}">Open my workspace</a>
+      <a class="button secondary" href="{% url 'account_email' %}">Change email</a>
+      <a class="button secondary" href="{% url 'password_reset' %}">Change password</a>
+      {% if request.user.role == 'admin' or request.user.is_superuser %}
+      <a class="button secondary" href="{% url 'settings' %}">Workspace settings</a>
+      <a class="button primary" href="{% url 'manage_users' %}">Create team account</a>
+      {% endif %}
     </div>
   </div>
 </section>
