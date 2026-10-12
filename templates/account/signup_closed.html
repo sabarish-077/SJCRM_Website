@@ -1,0 +1,8 @@
+{% extends "account/base_entrance.html" %}
+{% block head_title %}Account creation is invite-only{% endblock %}
+{% block content %}
+  <span class="eyebrow">WORKSPACE ACCESS</span>
+  <h1>Account creation is invite-only</h1>
+  <p>A workspace administrator must create your SJCRM account. Contact your administrator to request access.</p>
+  <a class="button primary auth-submit" href="{% url 'login' %}">Return to sign in <span>→</span></a>
+{% endblock %}

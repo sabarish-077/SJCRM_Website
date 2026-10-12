@@ -18,7 +18,7 @@ class EmailBackend(ModelBackend):
 
 class EmailSignupAdapter(DefaultAccountAdapter):
     def is_open_for_signup(self, request):
-        return True
+        return False
 
     def populate_username(self, request, user):
         # The CRM authenticates with email, but Django's user model still stores
@@ -28,4 +28,4 @@ class EmailSignupAdapter(DefaultAccountAdapter):
 
 class EmailSignupSocialAdapter(DefaultSocialAccountAdapter):
     def is_open_for_signup(self, request, sociallogin):
-        return bool((sociallogin.user.email or "").strip())
+        return False
