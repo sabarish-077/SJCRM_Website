@@ -1,10 +1,55 @@
 {% extends 'crm/base.html' %}{% load crm_extras %}
 {% block title %}{{ title }}{% endblock %}{% block breadcrumb %}{{ title }}{% endblock %}
 {% block content %}
-<section class="page-intro"><div><span class="eyebrow"><i></i> CUSTOMER OPERATIONS</span><h1>{{ title }}</h1><p>Keep your {{ title|lower }} organised, visible, and connected to your team.</p></div><a href="{% url 'record_new' module %}" class="button primary">＋ New {{ title|slice:':-1' }}</a></section>
-<section class="panel list-panel"><div class="list-toolbar"><form method="get" class="list-search"><span>⌕</span><input type="search" name="q" value="{{ q }}" placeholder="Search {{ title|lower }}" aria-label="Search {{ title }}"><button class="button secondary small" type="submit">Search</button></form><div class="toolbar-actions">{% if has_status %}<form method="get" class="filter-form"><input type="hidden" name="q" value="{{ q }}"><label for="status-filter">Status</label><select name="status" id="status-filter" class="filter-select" data-auto-submit><option value="">All statuses</option>{% for key,label in statuses %}<option value="{{ key }}" {% if request.GET.status == key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></form>{% endif %}<a class="button secondary small" href="{% url 'record_export' module %}">↓ Export CSV</a></div></div>
-<div class="table-wrap"><table class="data-table"><thead><tr>{% for column in columns %}<th>{{ column|humanize|upper }}</th>{% endfor %}<th class="actions-head">ACTIONS</th></tr></thead><tbody>
-{% for row in rows %}<tr>{% for column in columns %}{% with value=row.obj|attr:column %}<td>{% if column == 'owner' %}{% if value %}{{ value.get_full_name|default:value.email }}{% else %}<span class="muted">Unassigned</span>{% endif %}{% elif column == 'status' or column == 'stage' %}<span class="badge {{ value|status_class }}">{{ row.obj|display_value:column }}</span>{% elif column == 'amount' or column == 'budget' or column == 'revenue' %}<strong>{{ value|money }}</strong>{% elif column == 'expected_close' or column == 'due_date' or column == 'starts_on' or column == 'ends_on' %}{{ value|date:'M j, Y'|default:'—' }}{% elif value %}{{ value }}{% else %}<span class="muted">—</span>{% endif %}</td>{% endwith %}{% endfor %}<td class="row-actions"><a class="icon-action" href="{{ row.edit_url }}" aria-label="Edit record">↗</a><form method="post" action="{% url 'record_delete' module row.obj.pk %}" data-confirm="Delete this record? This cannot be undone.">{% csrf_token %}<button type="submit" class="icon-action danger" aria-label="Delete record">×</button></form></td></tr>
-{% empty %}<tr><td colspan="9"><div class="empty-state"><span>◌</span><b>No {{ title|lower }} found</b><small>{% if q %}Try a different search, or clear your filters.{% else %}Create your first record to start filling this workspace.{% endif %}</small><a class="button primary small" href="{% url 'record_new' module %}">＋ Create {{ title|slice:':-1' }}</a></div></td></tr>{% endfor %}
-</tbody></table></div><div class="list-footer"><span>Showing up to 250 records visible to your role</span><span>{{ rows|length }} records</span></div></section>
+<section class="page-intro">
+    <div><span class="eyebrow"><i></i> CUSTOMER OPERATIONS</span>
+        <h1>{{ title }}</h1>
+        <p>Keep your {{ title|lower }} organised, visible, and connected to your team.</p>
+    </div><a href="{% url 'record_new' module %}" class="button primary">＋ New {{ title|slice:':-1' }}</a>
+</section>
+<section class="panel list-panel">
+    <div class="list-toolbar">
+        <form method="get" class="list-search"><span>⌕</span><input type="search" name="q" value="{{ q }}"
+                placeholder="Search {{ title|lower }}" aria-label="Search {{ title }}"><button
+                class="button secondary small" type="submit">Search</button></form>
+        <div class="toolbar-actions">{% if has_status %}<form method="get" class="filter-form"><input type="hidden"
+                    name="q" value="{{ q }}"><label for="status-filter">Status</label><select name="status"
+                    id="status-filter" class="filter-select" data-auto-submit>
+                    <option value="">All statuses</option>
+                    {% for key, label in statuses %}
+                    <option value="{{ key }}" {% if request.GET.status == key %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select></form>{% endif %}<a class="button secondary small" href="{% url 'record_export' module %}">↓
+                Export CSV</a></div>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>{% for column in columns %}<th>{{ column|humanize|upper }}</th>{% endfor %}<th class="actions-head">
+                        ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}<tr>{% for column in columns %}{% with value=row.obj|attr:column %}<td>{% if column == 'owner' %}{% if value %}{{ value.get_full_name|default:value.email }}{% else %}<span class="muted">Unassigned</span>{% endif %}{% elif column == 'status' or column == 'stage' %}<span class="badge {{ value|status_class }}">{{ row.obj|display_value:column }}</span>{% elif column == 'amount' or column == 'budget' or column == 'revenue' %}<strong>{{ value|money }}</strong>{% elif column == 'expected_close' or column == 'due_date' or column == 'starts_on' or column == 'ends_on' %}{{ value|date:'M j, Y'|default:'—' }}{% elif value %}{{ value }}{% else %}<span class="muted">—</span>{% endif %}</td>{% endwith %}{% endfor %}<td
+                        class="row-actions"><a class="icon-action" href="{{ row.edit_url }}"
+                            aria-label="Edit record">↗</a>
+                        <form method="post" action="{% url 'record_delete' module row.obj.pk %}"
+                            data-confirm="Delete this record? This cannot be undone.">{% csrf_token %}<button
+                                type="submit" class="icon-action danger" aria-label="Delete record">×</button></form>
+                    </td>
+                </tr>
+                {% empty %}<tr>
+                    <td colspan="9">
+                        <div class="empty-state"><span>◌</span><b>No {{ title|lower }} found</b><small>{% if q %}Try a
+                                different search, or clear your filters.{% else %}Create your first record to start
+                                filling this workspace.{% endif %}</small><a class="button primary small"
+                                href="{% url 'record_new' module %}">＋ Create {{ title|slice:':-1' }}</a></div>
+                    </td>
+                </tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="list-footer"><span>Showing up to 250 records visible to your role</span><span>{{ rows|length }}
+            records</span></div>
+</section>
 {% endblock %}

@@ -4,15 +4,15 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Sign in · Orbit CRM</title>
+        <title>Sign in · SJCRM</title>
         <link rel="stylesheet" href="{% static 'crm/app.css' %}">
     </head>
     <body class="auth-body">
         <main class="auth-layout">
             <section class="auth-story">
                 <a class="brand" href="/login/">
-                    <span class="brand-mark">O</span>
-                    <span>Orbit CRM</span>
+                    <span class="brand-mark">SJ</span>
+                    <span>SJCRM</span>
                 </a>
 
                 <span class="eyebrow"><i></i> RELATIONSHIPS, CONNECTED</span>
@@ -24,7 +24,7 @@
                     <div class="visual-card back-card"></div>
 
                     <div class="visual-card front-card">
-                        <span class="front-icon">O</span>
+                        <span class="front-icon">SJ</span>
                         <b>Customer 360</b>
                         <small>All the context you need</small>
                         <span class="front-line"></span>
@@ -39,7 +39,7 @@
             <section class="auth-side">
                 <div class="auth-card">
                     <span class="eyebrow">WELCOME BACK</span>
-                    <h2>Sign in to Orbit CRM</h2>
+                    <h2>Sign in to SJCRM</h2>
                     <p class="auth-help">Use your company email and password.</p>
 
                     {% if request.GET.reset == 'sent' %}
@@ -85,14 +85,14 @@
                         </form>
                     {% endif %}
 
-                    <div class="auth-divider"><span>new to Orbit?</span></div>
+                    <div class="auth-divider"><span>new to SJCRM?</span></div>
                     <a class="button secondary auth-submit" href="{% url 'account_signup' %}">
                         Create account <span>→</span>
                     </a>
                     <p class="auth-footnote">New accounts must verify their email before access is granted.</p>
                 </div>
 
-                <span class="auth-copyright">© Orbit CRM · Secure workspace</span>
+                <span class="auth-copyright">© SJCRM · Smart Journey Customer Relationship Management</span>
             </section>
         </main>
     </body>

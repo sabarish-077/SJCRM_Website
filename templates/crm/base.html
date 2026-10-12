@@ -2,16 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f8faff"><title>{% block title %}Orbit CRM{% endblock %} · Orbit CRM</title>
+  <meta name="theme-color" content="#f8faff"><title>{% block title %}SJCRM{% endblock %} · SJCRM</title>
   <link rel="stylesheet" href="{% static 'crm/app.css' %}">
   <link rel="stylesheet" href="{% static 'crm/settings.css' %}">
   <link rel="stylesheet" href="{% static 'crm/account.css' %}">
   <link rel="stylesheet" href="{% static 'crm/email_change.css' %}">
+  <link rel="stylesheet" href="{% static 'crm/progress.css' %}">
 </head>
 <body>
 <div class="shell">
   <aside class="sidebar" id="sidebar">
-    <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">O</span><span>Orbit CRM</span></a>
+    <a class="brand" href="{% url 'dashboard' %}" aria-label="SJCRM — Smart Journey Customer Relationship Management"><span class="brand-mark">SJ</span><span>SJCRM</span></a>
     <div class="workspace"><span class="workspace-dot"></span><span>Enterprise workspace</span><span class="caret">⌄</span></div>
     <nav class="nav" aria-label="Main navigation">
       <span class="nav-label">WORKSPACE</span>
@@ -33,14 +34,14 @@
     </div>
   </aside>
   <div class="main-column">
-    <header class="topbar"><button type="button" class="mobile-menu" aria-label="Open menu" data-menu-toggle>☰</button><div class="crumb"><span>Orbit CRM</span><b>›</b><strong>{% block breadcrumb %}Workspace{% endblock %}</strong></div>
+    <header class="topbar"><button type="button" class="mobile-menu" aria-label="Open menu" data-menu-toggle>☰</button><div class="crumb"><span>SJCRM</span><b>›</b><strong>{% block breadcrumb %}Workspace{% endblock %}</strong></div>
       <form class="global-search" action="{% url 'global_search' %}" method="get"><span>⌕</span><input name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search leads, contacts, deals…" aria-label="Search CRM"><kbd>↵</kbd></form>
       <div class="top-actions"><span class="online-dot" title="Workspace ready"></span><details class="account-menu"><summary class="user-chip"><span class="avatar avatar-blue">{{ request.user.email|first|upper }}</span><span class="user-name">{{ request.user.get_full_name|default:request.user.email }}<small>{{ request.user.get_role_display }}</small></span><span class="account-caret">⌄</span></summary><div class="account-popover"><span class="account-email">{{ request.user.email }}</span><a href="{% url 'my_account' %}">My account</a><a href="{% url 'account_email' %}">Change email</a>{% if request.user.role == 'admin' or request.user.is_superuser %}<a href="{% url 'manage_users' %}">Create team account</a>{% endif %}<form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Sign out</button></form></div></details></div>
     </header>
     <main class="content">
       {% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
       {% block content %}{% endblock %}
-      <footer class="footer"><span>Orbit CRM</span><span>Customer relationships, connected.</span></footer>
+      <footer class="footer"><span>SJCRM</span><span>Smart Journey Customer Relationship Management</span></footer>
     </main>
   </div>
 </div>

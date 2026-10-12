@@ -1,1 +1,19 @@
-{% extends 'crm/base.html' %}{% block title %}Settings{% endblock %}{% block breadcrumb %}Settings{% endblock %}{% block content %}<section class="page-intro"><div><span class="eyebrow"><i></i> WORKSPACE ADMINISTRATION</span><h1>Settings</h1><p>Manage the people and teams that can access Orbit CRM.</p></div></section><div class="settings-grid"><a class="settings-card" href="{% url 'manage_users' %}"><span class="settings-icon">♙</span><span><b>Team members</b><small>{{ user_count }} active account{{ user_count|pluralize }}</small></span><span class="settings-arrow">→</span></a><a class="settings-card" href="{% url 'manage_teams' %}"><span class="settings-icon purple-icon">✣</span><span><b>Teams</b><small>{{ team_count }} team{{ team_count|pluralize }} in this workspace</small></span><span class="settings-arrow">→</span></a><a class="settings-card" href="{% url 'audit_log' %}"><span class="settings-icon green-icon">◷</span><span><b>Security audit</b><small>Read recent account and record changes</small></span><span class="settings-arrow">→</span></a></div><div class="notice-card"><b>Deployment security</b><p>Keep Supabase database credentials, Django secret keys, and Google OAuth secrets in Vercel environment variables. Never place them in browser code or commit them to the project.</p></div>{% endblock %}
+{% extends 'crm/base.html' %}{% block title %}Settings{% endblock %}{% block breadcrumb %}Settings{% endblock %}
+{% block content %}<section class="page-intro">
+    <div><span class="eyebrow"><i></i> WORKSPACE ADMINISTRATION</span>
+        <h1>Settings</h1>
+        <p>Manage the people and teams that can access SJCRM.</p>
+    </div>
+</section>
+<div class="settings-grid"><a class="settings-card" href="{% url 'manage_users' %}"><span
+            class="settings-icon">♙</span><span><b>Team members</b><small>{{ user_count }} active account{{
+                user_count|pluralize }}</small></span><span class="settings-arrow">→</span></a><a class="settings-card"
+        href="{% url 'manage_teams' %}"><span class="settings-icon purple-icon">✣</span><span><b>Teams</b><small>{{
+                team_count }} team{{ team_count|pluralize }} in this workspace</small></span><span
+            class="settings-arrow">→</span></a><a class="settings-card" href="{% url 'audit_log' %}"><span
+            class="settings-icon green-icon">◷</span><span><b>Security audit</b><small>Read recent account and record
+                changes</small></span><span class="settings-arrow">→</span></a></div>
+<div class="notice-card"><b>Deployment security</b>
+    <p>Keep Supabase database credentials, Django secret keys, and Google OAuth secrets in Vercel environment variables.
+        Never place them in browser code or commit them to the project.</p>
+</div>{% endblock %}

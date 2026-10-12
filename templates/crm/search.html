@@ -1,1 +1,13 @@
-{% extends 'crm/base.html' %}{% block title %}Search{% endblock %}{% block breadcrumb %}Search{% endblock %}{% block content %}<section class="page-intro"><div><span class="eyebrow"><i></i> WORKSPACE SEARCH</span><h1>Search results</h1><p>{% if q %}Results for “{{ q }}”{% else %}Enter a search term in the search bar above.{% endif %}</p></div></section><section class="panel"><div class="simple-list">{% for result in results %}<a class="search-result" href="/{{ result.module }}/"><span class="search-kind">{{ result.module|title }}</span><b>{{ result.object }}</b><span>View records →</span></a>{% empty %}{% if q %}<div class="empty-state"><b>No matches found</b><small>Try another search term. Results follow your team access.</small></div>{% endif %}{% endfor %}</div></section>{% endblock %}
+{% extends 'crm/base.html' %}{% block title %}Search{% endblock %}{% block breadcrumb %}Search{% endblock %}
+{% block content %}<section class="page-intro">
+    <div><span class="eyebrow"><i></i> WORKSPACE SEARCH</span>
+        <h1>Search results</h1>
+        <p>{% if q %}Results for “{{ q }}”{% else %}Enter a search term in the search bar above.{% endif %}</p>
+    </div>
+</section>
+<section class="panel">
+    <div class="simple-list">{% for result in results %}<a class="search-result" href="/{{ result.module }}/"><span
+                class="search-kind">{{ result.module|title }}</span><b>{{ result.object }}</b><span>View records
+                →</span></a>{% empty %}{% if q %}<div class="empty-state"><b>No matches found</b><small>Try another
+                search term. Results follow your team access.</small></div>{% endif %}{% endfor %}</div>
+</section>{% endblock %}

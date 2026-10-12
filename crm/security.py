@@ -8,6 +8,7 @@ class SecurityHeadersMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
+        response.headers["Cache-Control"] = "private, no-store, max-age=0"
         form_action = "form-action 'self'"
         if settings.DEBUG:
             # allauth can build the Google endpoint from the Django Site record.
@@ -17,8 +18,9 @@ class SecurityHeadersMiddleware:
         response.headers.setdefault(
             "Content-Security-Policy",
             "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; "
-            f"{form_action}; img-src 'self' data:; font-src 'self'; style-src 'self'; "
-            "script-src 'self'; connect-src 'self'; upgrade-insecure-requests",
+            f"{form_action}; img-src 'self' data:; font-src 'self' data:; "
+            "style-src 'self' 'unsafe-inline'; "
+            "script-src 'self' 'unsafe-inline'; connect-src 'self'; upgrade-insecure-requests",
         )
         response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
         return response

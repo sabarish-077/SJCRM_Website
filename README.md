@@ -1,6 +1,6 @@
-# Orbit CRM
+# SJCRM — Smart Journey Customer Relationship Management
 
-A responsive, invite-only CRM built from the Stitch Orbit CRM screens. Django renders the application and enforces account, team, and role access. Production records use Supabase PostgreSQL. Vercel runs the Django WSGI application and serves collected static assets.
+A responsive, invite-only CRM built from the Stitch CRM screens. Django renders the application and enforces account, team, and role access. Production records use Supabase PostgreSQL. Vercel runs the Django WSGI application and serves collected static assets.
 
 ## Local setup on Windows
 
@@ -41,6 +41,6 @@ Supabase's transaction pooler is intended for serverless connections. This proje
 
 ## Security notes
 
-This includes production-only HTTPS redirect, secure session and CSRF cookies, HSTS, clickjacking and content-type protections, a restrictive content security policy, Argon2 password hashing, password validators, invite-only access, login attempt lockout, and audit events. Secrets are loaded from environment variables and production refuses to start without DJANGO_SECRET_KEY and DATABASE_URL.
+This includes production-only HTTPS redirect, secure session and CSRF cookies, HSTS, clickjacking and content-type protections, a restrictive content security policy, Argon2 password hashing, password validators, invite-only access, login attempt lockout, and audit events. The CSRF cookie has an app-specific name to prevent collisions with other local apps on the same hostname. Secrets are loaded from environment variables and production refuses to start without DJANGO_SECRET_KEY and DATABASE_URL.
 
 No software can be guaranteed fully secure or error-free. Before handling real customer data, configure hosting, email, Google OAuth (if desired), the domain and trusted origins; apply migrations; review permissions against your organization's policy; and verify a live deployment with your own Supabase and Vercel projects. Supabase Row Level Security is not used by this Django ORM connection; access is enforced by the authenticated Django server, and database credentials must remain server-side.

@@ -259,7 +259,7 @@ def manage_users(request):
                 try:
                     current_site = Site.objects.get_current()
                     current_site.domain = request.get_host()
-                    current_site.name = "Orbit CRM"
+                    current_site.name = "SJCRM"
                     current_site.save(update_fields=["domain", "name"])
                     reset.save(request=request, use_https=request.is_secure(), email_template_name="account/password_reset_email.txt")
                 except Exception:

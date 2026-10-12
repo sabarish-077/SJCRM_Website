@@ -2,14 +2,44 @@
 {% block title %}Change email{% endblock %}
 {% block breadcrumb %}My account › Change email{% endblock %}
 {% block content %}
-<section class="page-intro"><div><span class="eyebrow"><i></i> ACCOUNT SECURITY</span><h1>Change email</h1><p>Use a verification link to confirm your new sign-in email.</p></div></section>
+<section class="page-intro">
+  <div><span class="eyebrow"><i></i> ACCOUNT SECURITY</span>
+    <h1>Change email</h1>
+    <p>Use a verification link to confirm your new sign-in email.</p>
+  </div>
+</section>
 <section class="content-grid two-col">
-  <div class="panel"><div class="panel-head"><div><span class="eyebrow">SIGN-IN EMAIL</span><h2>Email address</h2></div></div><form method="post" action="{% url 'account_email' %}" class="inline-form">{% csrf_token %}
-    {% if current_emailaddress %}<label for="current-email">Current email</label><input class="form-control" id="current-email" type="email" value="{{ current_emailaddress.email }}" disabled>{% endif %}
-    {% if new_emailaddress %}<div class="email-pending"><b>Verification pending</b><small>We sent a link to {{ new_emailaddress.email }}. Confirm it to complete the change.</small></div>{% endif %}
-    <label for="{{ form.email.auto_id }}">New email</label><input class="form-control" id="{{ form.email.auto_id }}" name="email" type="email" value="{{ form.email.value|default:'' }}" autocomplete="email" required>{% for error in form.email.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
-    <button class="button primary" name="action_add" type="submit">Send verification link</button>
-  </form></div>
-  <div class="panel"><div class="panel-head"><div><span class="eyebrow">NEXT STEP</span><h2>Verify your email</h2></div></div><div class="account-options"><p class="account-help">Your sign-in email changes only after you open the verification link sent to the new address.</p>{% if new_emailaddress %}<form method="post" action="{% url 'account_email' %}">{% csrf_token %}<input type="hidden" name="email" value="{{ new_emailaddress.email }}"><button class="button secondary" name="action_send" type="submit">Resend verification</button><button class="button text-danger" name="action_remove" type="submit">Cancel email change</button></form>{% endif %}<a class="button secondary" href="{% url 'my_account' %}">Back to my account</a></div></div>
+  <div class="panel">
+    <div class="panel-head">
+      <div><span class="eyebrow">SIGN-IN EMAIL</span>
+        <h2>Email address</h2>
+      </div>
+    </div>
+    <form method="post" action="{% url 'account_email' %}" class="inline-form">{% csrf_token %}
+      {% if current_emailaddress %}<label for="current-email">Current email</label><input class="form-control"
+        id="current-email" type="email" value="{{ current_emailaddress.email }}" disabled>{% endif %}
+      {% if new_emailaddress %}<div class="email-pending"><b>Verification pending</b><small>We sent a link to {{
+          new_emailaddress.email }}. Confirm it to complete the change.</small></div>{% endif %}
+      <label for="{{ form.email.auto_id }}">New email</label><input class="form-control" id="{{ form.email.auto_id }}"
+        name="email" type="email" value="{{ form.email.value|default:'' }}" autocomplete="email" required>
+      {% for error in form.email.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+      <button class="button primary" name="action_add" type="submit">Send verification link</button>
+    </form>
+  </div>
+  <div class="panel">
+    <div class="panel-head">
+      <div><span class="eyebrow">NEXT STEP</span>
+        <h2>Verify your email</h2>
+      </div>
+    </div>
+    <div class="account-options">
+      <p class="account-help">Your sign-in email changes only after you open the verification link sent to the new
+        address.</p>{% if new_emailaddress %}<form method="post" action="{% url 'account_email' %}">{% csrf_token
+        %}<input type="hidden" name="email" value="{{ new_emailaddress.email }}"><button class="button secondary"
+          name="action_send" type="submit">Resend verification</button><button class="button text-danger"
+          name="action_remove" type="submit">Cancel email change</button></form>{% endif %}<a class="button secondary"
+        href="{% url 'my_account' %}">Back to my account</a>
+    </div>
+  </div>
 </section>
 {% endblock %}

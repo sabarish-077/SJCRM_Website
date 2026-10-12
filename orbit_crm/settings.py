@@ -80,7 +80,7 @@ ACCOUNT_ADAPTER = "crm.auth.EmailSignupAdapter"
 SOCIALACCOUNT_ADAPTER = "crm.auth.EmailSignupSocialAdapter"
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
-ACCOUNT_EMAIL_SUBJECT_PREFIX = "[Orbit CRM] "
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[SJCRM] "
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 SOCIALACCOUNT_LOGIN_ON_GET = False
@@ -119,7 +119,7 @@ EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "true").lower() == "true"
-DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "Orbit CRM <noreply@example.com>")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "SJCRM <noreply@example.com>")
 
 CSRF_TRUSTED_ORIGINS = [f"https://{os.environ['VERCEL_URL']}"] if os.environ.get("VERCEL_URL") else []
 CSRF_TRUSTED_ORIGINS += [v.strip() for v in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if v.strip()]
@@ -129,6 +129,7 @@ SESSION_COOKIE_AGE = 60 * 60
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_NAME = "orbitcrm_csrftoken"
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = "Lax"
 SECURE_CONTENT_TYPE_NOSNIFF = True
