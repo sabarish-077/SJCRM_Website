@@ -11,6 +11,3 @@ dependencies = [
     "argon2-cffi>=23.1,<26",
     "python-dotenv>=1,<2",
 ]
-
-[tool.vercel.scripts]
-build = "python manage.py migrate --noinput"

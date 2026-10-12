@@ -31,6 +31,10 @@ Open http://127.0.0.1:8000/. In local DEBUG mode, the app uses SQLite unless DAT
 
 Supabase's transaction pooler is intended for serverless connections. This project disables persistent Django connections, requires SSL, and disables psycopg prepared statements for compatibility with transaction mode. See the Supabase connection guide at https://supabase.com/docs/guides/database/connecting-to-postgres and Vercel's Django guide at https://vercel.com/docs/frameworks/full-stack/django.
 
+## Deploying migrations
+
+Before deploying a release with database migrations, take a backup of the production Supabase database. Set `DATABASE_URL` in a trusted local environment to the production database, then run `python manage.py migrate` once manually. Confirm it completes before deploying the application. Do not run migrations as part of a Vercel build.
+
 ## Application behavior
 
 - Admin can access all CRM records and manage teams and users.
