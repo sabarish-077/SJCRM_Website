@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
+from .forms import form_for
 from .models import Company, Contact, Deal, Lead, Team
 
 
@@ -83,3 +84,34 @@ class CRMSmokeTests(TestCase):
         for url in urls:
             with self.subTest(url=url):
                 self.assertEqual(self.client.get(url).status_code, 200)
+
+
+class AccessControlTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        user_model = get_user_model()
+        cls.manager = user_model.objects.create_user(
+            username="teamless-manager", email="manager@example.test", password="unused", role="manager",
+        )
+        cls.other_user = user_model.objects.create_user(
+            username="manager-other", email="other@example.test", password="unused", role="staff",
+        )
+        cls.other_team = Team.objects.create(name="Manager Other Team")
+        cls.other_user.team = cls.other_team
+        cls.other_user.save(update_fields=["team"])
+
+    def test_teamless_manager_form_cannot_assign_another_user_or_team(self):
+        form = form_for("leads", self.manager)
+        self.assertEqual(list(form.fields["owner"].queryset), [self.manager])
+        self.assertFalse(form.fields["team"].queryset.exists())
+
+        submitted = form_for("leads", self.manager, data={
+            "name": "Attempted transfer", "owner": str(self.other_user.pk), "team": str(self.other_team.pk),
+        })
+        self.assertFalse(submitted.is_valid())
+
+    def test_crm_admin_role_without_django_superuser_is_denied_admin(self):
+        self.client.force_login(self.other_user)
+        response = self.client.get(reverse("admin:index"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/admin/login/", response["Location"])

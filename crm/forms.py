@@ -22,9 +22,13 @@ class CRMRecordForm(forms.ModelForm):
         if "owner" in self.fields:
             owner_qs = User.objects.filter(is_active=True)
             team_qs = Team.objects.all()
-            if user.role == "manager" and user.team_id:
-                owner_qs = owner_qs.filter(team=user.team)
-                team_qs = team_qs.filter(pk=user.team_id)
+            if user.role == "manager":
+                if user.team_id:
+                    owner_qs = owner_qs.filter(team=user.team)
+                    team_qs = team_qs.filter(pk=user.team_id)
+                else:
+                    owner_qs = owner_qs.filter(pk=user.pk)
+                    team_qs = Team.objects.none()
             self.fields["owner"].queryset = owner_qs
             self.fields["team"].queryset = team_qs
             if not self.instance.pk:

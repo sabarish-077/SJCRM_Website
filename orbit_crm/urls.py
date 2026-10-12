@@ -1,10 +1,10 @@
-from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
+from crm.admin import crm_admin_site
 from crm import views
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("admin/", crm_admin_site.urls),
     path("accounts/", include("allauth.urls")),
     path("login/", views.login_view, name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),

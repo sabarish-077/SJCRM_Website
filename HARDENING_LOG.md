@@ -15,6 +15,12 @@ This is the plain-language notebook for the hardening work. Each numbered step g
 
 **Checks:** `manage.py check` passed; all 5 smoke tests passed; `git diff --check` passed.
 
+## Step 3 — Keep records inside the right workspace
+
+**Done.** A manager with no team can now assign records only to themself and cannot choose any team. Django Admin now requires an active Django superuser, which is a stricter gate than the app's separate CRM `admin` role. Added tests for both rules. The existing record views use workspace-scoped querysets for edit/delete and list/search/export; the smoke suite checks cross-team lead, contact, and deal reads/edits. No DRF or other API routes were found, so there was no API permission layer to change.
+
+**Checks:** `manage.py check` passed; all 7 tests passed; `git diff --check` passed.
+
 ## Step 2 — Scan secrets and environment settings
 
 **Done.** Scanned current source and reachable Git history for common private-key, cloud-token, OAuth-key, and credentialed-database-URL shapes. The scan found no matches; it printed no secret values. `.env` is ignored and untracked; `.env.example` is the only environment file in Git and contains blank secret fields. Existing `.gitignore` rules already cover `.env` and `.env.*` while allowing `.env.example`, so they were left intact.
