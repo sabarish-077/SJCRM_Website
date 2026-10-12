@@ -45,6 +45,14 @@ The templates use an external JavaScript file and have no inline scripts, so `un
 
 **Checks:** `manage.py check` passed; all 11 tests passed; `git diff --check` passed.
 
+## Step 7 — Keep deployment settings and errors safe
+
+**Done.** `DEBUG` defaults to false and the app refuses to start in production without its secret key and database URL. Hosts come from `ALLOWED_HOSTS` plus Vercel's host variables, and trusted origins come from explicit environment settings. Added generic 404/500 pages that do not reveal exception details. No webhook endpoint, CORS middleware, or cross-origin API exists, so there is nothing to sign or open to browser origins today; future-integration rules are recorded in `MANUAL_TODO.md`.
+
+The live Vercel variables, custom domain, proxy behavior, and error responses still need dashboard/production verification; no production URL was changed or contacted.
+
+**Checks:** `manage.py check` passed; all 13 tests passed; `git diff --check` passed.
+
 ## Step 2 — Scan secrets and environment settings
 
 **Done.** Scanned current source and reachable Git history for common private-key, cloud-token, OAuth-key, and credentialed-database-URL shapes. The scan found no matches; it printed no secret values. `.env` is ignored and untracked; `.env.example` is the only environment file in Git and contains blank secret fields. Existing `.gitignore` rules already cover `.env` and `.env.*` while allowing `.env.example`, so they were left intact.

@@ -11,11 +11,16 @@ These tasks need access to deployment or database controls that are not in this 
 ## Hosting and database
 
 - [ ] In Vercel, verify production-only values for `DJANGO_SECRET_KEY`, `DATABASE_URL`, `ALLOWED_HOSTS`, and `CSRF_TRUSTED_ORIGINS`; keep Preview on a separate database.
+- [ ] In Vercel Production, verify `DJANGO_DEBUG=false` (or unset) and that the production host/custom domain is included in `ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS`.
 - [ ] In Supabase, confirm the Django connection role is not a superuser and does not bypass row-level security; use the database privilege/RLS queries in `SECURITY_AUDIT.md` as a read-only inspection.
 - [ ] Confirm backups/PITR and complete a restore drill in a separate project. Never test restore on production.
 - [ ] Review SMTP sender authentication, Google OAuth callback/allowed origins, provider-side rate limits, and live response headers.
 - [ ] Check deployed HTTPS responses and cookies on the real Vercel/custom domain: redirect, HSTS, CSP, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, Secure/HttpOnly/SameSite cookie flags.
 - [ ] If file uploads are added in future, require an extension and MIME allowlist, a strict byte limit, generated storage names, malware scanning where appropriate, and non-executable private storage before release.
+
+## Future integrations
+
+- [ ] No webhook endpoint or CORS-enabled API exists in this repository. If either is added, verify every webhook signature over the raw request body with constant-time comparison and replay protection; allow only the exact browser origins that need API access.
 - [ ] Verify the intended production operators have Django `is_superuser` access for `/admin/`; a CRM role named `admin` alone no longer grants Django Admin access.
 - [ ] Configure a shared per-IP and per-account/email request limit for `/password-reset/` at Vercel or the mail provider; keep its response generic. Confirm the limit works across serverless instances.
 - [ ] In Supabase SQL Editor, inspect the Django connection role (read-only query):

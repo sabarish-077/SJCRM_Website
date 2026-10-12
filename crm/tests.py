@@ -5,12 +5,13 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import get_hasher
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from django.test import TestCase, override_settings
+from django.test import RequestFactory, TestCase, override_settings
 from orbit_crm.settings import database_config
 from django.urls import reverse
 
 from .forms import form_for
 from .models import AuditEvent, Company, Contact, Deal, Lead, Team
+from .views import server_error
 
 
 class CRMSmokeTests(TestCase):
@@ -174,3 +175,17 @@ class DatabaseConfigurationTests(TestCase):
         self.assertEqual(config["OPTIONS"]["sslmode"], "require")
         self.assertIsNone(config["OPTIONS"]["prepare_threshold"])
         self.assertEqual(config["CONN_MAX_AGE"], 0)
+
+
+class ProductionErrorPageTests(TestCase):
+    @override_settings(DEBUG=False, ALLOWED_HOSTS=["testserver"])
+    def test_unknown_page_uses_generic_404_template(self):
+        response = self.client.get("/this-route-does-not-exist/and-more/")
+        self.assertEqual(response.status_code, 404)
+        self.assertContains(response, "Page not found", status_code=404)
+        self.assertNotContains(response, "Traceback", status_code=404)
+
+    def test_server_error_handler_renders_generic_500(self):
+        response = server_error(RequestFactory().get("/"))
+        self.assertEqual(response.status_code, 500)
+        self.assertContains(response, "No technical details are shown here.", status_code=500)

@@ -29,6 +29,15 @@ MODULES = {
     "campaigns": ("Campaigns", Campaign, ["title", "channel", "status", "budget", "target_contacts", "responses", "conversions", "revenue", "owner"]),
 }
 
+
+def page_not_found(request, exception):
+    return render(request, "404.html", status=404)
+
+
+def server_error(request):
+    return render(request, "500.html", status=500)
+
+
 def scoped(queryset, user):
     if user.is_superuser or user.role == "admin": return queryset
     if user.role == "manager": return queryset.filter(team=user.team) if user.team_id else queryset.filter(owner=user)

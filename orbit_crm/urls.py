@@ -28,3 +28,6 @@ urlpatterns = [
     path("<slug:module>/<int:pk>/delete/", views.record_delete, name="record_delete"),
     path("<slug:module>/export.csv", views.record_export, name="record_export"),
 ]
+
+handler404 = "crm.views.page_not_found"
+handler500 = "crm.views.server_error"
