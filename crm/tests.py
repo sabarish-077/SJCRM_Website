@@ -1,3 +1,6 @@
+import csv
+from io import StringIO
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import get_hasher
 from django.contrib.auth.password_validation import validate_password
@@ -7,7 +10,7 @@ from orbit_crm.settings import database_config
 from django.urls import reverse
 
 from .forms import form_for
-from .models import Company, Contact, Deal, Lead, Team
+from .models import AuditEvent, Company, Contact, Deal, Lead, Team
 
 
 class CRMSmokeTests(TestCase):
@@ -77,6 +80,21 @@ class CRMSmokeTests(TestCase):
         self.assertContains(response, "invite-only")
         self.assertEqual(user_model.objects.count(), before)
 
+    def test_csv_export_streams_audits_and_neutralizes_formula_cells(self):
+        Lead.objects.create(
+            name="  =HYPERLINK(\"https://bad.invalid\")", owner=self.user_a, team=self.team_a,
+        )
+        self.client.force_login(self.user_a)
+        response = self.client.get(reverse("record_export", kwargs={"module": "leads"}))
+
+        self.assertTrue(response.streaming)
+        csv_text = b"".join(response.streaming_content).decode("utf-8")
+        rows = list(csv.reader(StringIO(csv_text)))
+        self.assertEqual(rows[1][0], "'  =HYPERLINK(\"https://bad.invalid\")")
+        self.assertNotIn("Private Lead B", csv_text)
+        event = AuditEvent.objects.get(actor=self.user_a, module="leads", action="exported")
+        self.assertEqual(event.summary, "Exported leads CSV")
+
     def test_logged_in_user_can_open_key_crm_pages(self):
         self.client.force_login(self.user_a)
         urls = [
@@ -87,7 +105,9 @@ class CRMSmokeTests(TestCase):
         ]
         for url in urls:
             with self.subTest(url=url):
-                self.assertEqual(self.client.get(url).status_code, 200)
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200)
+                self.assertNotIn("script-src 'self' 'unsafe-inline'", response["Content-Security-Policy"])
 
 
 class AccessControlTests(TestCase):

@@ -37,6 +37,14 @@ The actual Supabase database username, superuser/BYPASSRLS status, grants, and t
 
 **Checks:** `manage.py check` passed; all 10 tests passed; `git diff --check` passed.
 
+## Step 6 — Validate data and harden browser responses
+
+**Done.** The app uses Django forms and ORM field validation for CRM inputs; no file-upload or CSV-import route/model exists to expose an upload parser. The CSV export is now streamed in small chunks, filtered by the user's record scope, formula-neutralized even when whitespace comes before a formula, and logged without storing exported customer values. Added a test for streaming, scope, formula safety, and the audit event. No code was added for uploads; if uploads are introduced later, allowlist file types, cap sizes, and store files outside executable/static paths.
+
+The templates use an external JavaScript file and have no inline scripts, so `unsafe-inline` was removed from `script-src`. Existing production-only settings already enable secure session/CSRF cookies, HTTPS redirect, HSTS, `nosniff`, frame denial, and same-origin referrer policy; the live proxy/domain behavior still needs the manual response-header check.
+
+**Checks:** `manage.py check` passed; all 11 tests passed; `git diff --check` passed.
+
 ## Step 2 — Scan secrets and environment settings
 
 **Done.** Scanned current source and reachable Git history for common private-key, cloud-token, OAuth-key, and credentialed-database-URL shapes. The scan found no matches; it printed no secret values. `.env` is ignored and untracked; `.env.example` is the only environment file in Git and contains blank secret fields. Existing `.gitignore` rules already cover `.env` and `.env.*` while allowing `.env.example`, so they were left intact.

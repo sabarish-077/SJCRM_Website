@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.db.models import Q, Sum
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.core.exceptions import ValidationError
@@ -36,6 +36,13 @@ def scoped(queryset, user):
 
 def audit(user, module, obj, action):
     AuditEvent.objects.create(actor=user, module=module, record_id=obj.pk, action=action, summary=f"{action.title()} {obj}")
+
+
+def csv_safe_cell(value):
+    value = str(value or "")
+    if value.lstrip(" \t\r\n\v\f\x00").startswith(("=", "+", "-", "@")):
+        return "'" + value
+    return value
 
 def home(request):
     return redirect("dashboard" if request.user.is_authenticated else "login")
@@ -134,14 +141,29 @@ def record_delete(request, module, pk):
 @login_required
 def record_export(request, module):
     if module not in MODULES: raise Http404
-    title, model, columns = MODULES[module]
-    response = HttpResponse(content_type="text/csv")
+    _title, model, columns = MODULES[module]
+    related_fields = {
+        "contacts": ("company",), "deals": ("company", "contact"),
+        "support": ("contact",), "tasks": ("contact", "deal", "support_case"),
+    }.get(module, ())
+    queryset = scoped(model.objects.select_related("owner", "team", *related_fields), request.user)
+    AuditEvent.objects.create(
+        actor=request.user, module=module, action="exported", summary=f"Exported {module} CSV",
+    )
+
+    class Echo:
+        def write(self, value):
+            return value
+
+    writer = csv.writer(Echo())
+
+    def rows():
+        yield writer.writerow([field.replace("_", " ").title() for field in columns])
+        for obj in queryset.iterator(chunk_size=200):
+            yield writer.writerow([csv_safe_cell(getattr(obj, field, "")) for field in columns])
+
+    response = StreamingHttpResponse(rows(), content_type="text/csv")
     response["Content-Disposition"] = f'attachment; filename="orbit-{module}.csv"'
-    writer = csv.writer(response)
-    writer.writerow([field.replace("_", " ").title() for field in columns])
-    for obj in scoped(model.objects.select_related("owner", "team"), request.user).iterator(chunk_size=200):
-        cells = [str(getattr(obj, field, "") or "") for field in columns]
-        writer.writerow([("'" + value) if value.startswith(("=", "+", "-", "@", "\t", "\r")) else value for value in cells])
     return response
 
 @login_required

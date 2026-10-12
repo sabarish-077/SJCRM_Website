@@ -20,7 +20,7 @@ class SecurityHeadersMiddleware:
             "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; "
             f"{form_action}; img-src 'self' data:; font-src 'self' data:; "
             "style-src 'self' 'unsafe-inline'; "
-            "script-src 'self' 'unsafe-inline'; connect-src 'self'; upgrade-insecure-requests",
+            "script-src 'self'; connect-src 'self'; upgrade-insecure-requests",
         )
         response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
         return response
