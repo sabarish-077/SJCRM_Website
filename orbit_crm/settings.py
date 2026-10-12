@@ -12,8 +12,13 @@ if not SECRET_KEY:
     else:
         raise RuntimeError("Set DJANGO_SECRET_KEY in the deployment environment.")
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
-if os.environ.get("VERCEL_URL"):
-    ALLOWED_HOSTS.append(os.environ["VERCEL_URL"].split(":")[0])
+for vercel_host_var in ("VERCEL_URL", "VERCEL_BRANCH_URL", "VERCEL_PROJECT_PRODUCTION_URL"):
+    vercel_host = os.environ.get(vercel_host_var, "").strip()
+    if vercel_host:
+        vercel_host = vercel_host.removeprefix("https://").removeprefix("http://").split("/", 1)[0].split(":", 1)[0]
+        if vercel_host:
+            ALLOWED_HOSTS.append(vercel_host)
+ALLOWED_HOSTS = list(dict.fromkeys(ALLOWED_HOSTS))
 
 INSTALLED_APPS = [
     "django.contrib.admin", "django.contrib.auth", "django.contrib.contenttypes",
