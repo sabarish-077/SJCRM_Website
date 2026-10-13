@@ -19,6 +19,9 @@ class SecurityHeadersMiddleware:
             for origin in settings.CSRF_TRUSTED_ORIGINS
             if origin.startswith(("https://", "http://"))
         )
+        # Chrome checks form-action again when the POST response redirects to
+        # Google's OAuth authorization endpoint.
+        form_action_sources.append("https://accounts.google.com")
         form_action = "form-action " + " ".join(dict.fromkeys(form_action_sources))
         response.headers.setdefault(
             "Content-Security-Policy",

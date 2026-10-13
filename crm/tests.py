@@ -218,9 +218,8 @@ class SecurityPolicyTests(TestCase):
         )
         self.assertEqual(
             form_action,
-            "form-action 'self' https://preview.example.test https://sjcrm-website.vercel.app",
+            "form-action 'self' https://preview.example.test https://sjcrm-website.vercel.app https://accounts.google.com",
         )
-        self.assertNotIn("google.com", form_action)
 
 
 class ProductionErrorPageTests(TestCase):
