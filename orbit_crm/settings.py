@@ -135,7 +135,18 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "true").lower() == "true"
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "SJCRM <noreply@example.com>")
 
-CSRF_TRUSTED_ORIGINS = [f"https://{os.environ['VERCEL_URL']}"] if os.environ.get("VERCEL_URL") else []
+def vercel_trusted_origins(environ):
+    origins = []
+    for key in ("VERCEL_URL", "VERCEL_BRANCH_URL", "VERCEL_PROJECT_PRODUCTION_URL"):
+        host = environ.get(key, "").strip()
+        if host:
+            host = host.removeprefix("https://").removeprefix("http://").split("/", 1)[0].split(":", 1)[0]
+            if host:
+                origins.append(f"https://{host}")
+    return list(dict.fromkeys(origins))
+
+
+CSRF_TRUSTED_ORIGINS = vercel_trusted_origins(os.environ)
 CSRF_TRUSTED_ORIGINS += [v.strip() for v in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if v.strip()]
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_HTTPONLY = True

@@ -8,7 +8,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.test import RequestFactory, TestCase, override_settings
-from orbit_crm.settings import database_config
+from orbit_crm.settings import database_config, vercel_trusted_origins
 from django.urls import reverse
 
 from .forms import form_for
@@ -182,6 +182,17 @@ class DatabaseConfigurationTests(TestCase):
         self.assertIsNone(config["OPTIONS"]["prepare_threshold"])
         self.assertEqual(config["CONN_MAX_AGE"], 0)
 
+    def test_vercel_trusted_origins_include_preview_and_production_hosts(self):
+        origins = vercel_trusted_origins({
+            "VERCEL_URL": "sjcrm-preview.vercel.app",
+            "VERCEL_PROJECT_PRODUCTION_URL": "https://sjcrm-website.vercel.app/",
+        })
+
+        self.assertEqual(origins, [
+            "https://sjcrm-preview.vercel.app",
+            "https://sjcrm-website.vercel.app",
+        ])
+
 
 class SecurityPolicyTests(TestCase):
     def test_google_login_form_posts_to_a_relative_same_host_url(self):
@@ -193,7 +204,9 @@ class SecurityPolicyTests(TestCase):
 
         self.assertContains(response, 'action="/accounts/google/login/?process=login"')
 
-    @override_settings(DEBUG=False, CSRF_TRUSTED_ORIGINS=["https://preview.example.test/"])
+    @override_settings(DEBUG=False, CSRF_TRUSTED_ORIGINS=[
+        "https://preview.example.test/", "https://sjcrm-website.vercel.app",
+    ])
     def test_form_action_allows_only_same_site_and_configured_trusted_origins(self):
         middleware = SecurityHeadersMiddleware(lambda request: HttpResponse("ok"))
         response = middleware(RequestFactory().get("/login/"))
@@ -203,7 +216,10 @@ class SecurityPolicyTests(TestCase):
             for directive in response["Content-Security-Policy"].split(";")
             if directive.strip().startswith("form-action ")
         )
-        self.assertEqual(form_action, "form-action 'self' https://preview.example.test")
+        self.assertEqual(
+            form_action,
+            "form-action 'self' https://preview.example.test https://sjcrm-website.vercel.app",
+        )
         self.assertNotIn("google.com", form_action)
 
 
