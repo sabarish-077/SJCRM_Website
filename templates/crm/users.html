@@ -16,16 +16,29 @@
       </div>
     </div>
     <div class="simple-list">
-      {% for member in users %}<div class="simple-row"><span class="avatar avatar-blue">{{ member.email|first|upper
-          }}</span><span class="member-name"><b>{{ member.email }}</b><small>{% if member.team %}{{ member.team.name }}
-            · {% endif %}{{ member.get_role_display }}</small></span><span
-          class="badge {% if member.is_active %}green{% else %}red{% endif %}">{% if member.is_active %}Active{% else
-          %}Disabled{% endif %}</span>{% if not member.is_superuser %}<span class="settings-actions"><a
-            class="icon-action" href="{% url 'edit_user' member.pk %}" aria-label="Edit {{ member.email }}">✎</a>{% if member.is_active and member.pk != request.user.pk %}<form method="post"
-            action="{% url 'remove_user' member.pk %}"
-            data-confirm="Remove access for {{ member.email }}? Their history will be kept.">{% csrf_token %}<button
-              class="icon-action danger" type="submit" aria-label="Remove {{ member.email }}">×</button></form>{% endif %}</span>{% endif %}</div>
-      {% empty %}<div class="empty-state compact"><b>No accounts</b></div>{% endfor %}
+      {% for member in users %}
+      <div class="simple-row">
+        <span class="avatar avatar-blue">{{ member.email|first|upper }}</span>
+        <span class="member-name">
+          <b>{{ member.email }}</b>
+          <small>{% if member.team %}{{ member.team.name }} · {% endif %}{{ member.get_role_display }}</small>
+        </span>
+        <span class="badge {% if member.is_active %}green{% else %}red{% endif %}">{{ member.is_active|yesno:"Active,Disabled" }}</span>
+        {% if not member.is_superuser %}
+        <span class="settings-actions">
+          <a class="icon-action" href="{% url 'edit_user' member.pk %}" aria-label="Edit {{ member.email }}">✎</a>
+          {% if member.is_active and member.pk != request.user.pk %}
+          <form method="post" action="{% url 'remove_user' member.pk %}" data-confirm="Remove access for {{ member.email }}? Their history will be kept.">
+            {% csrf_token %}
+            <button class="icon-action danger" type="submit" aria-label="Remove {{ member.email }}">×</button>
+          </form>
+          {% endif %}
+        </span>
+        {% endif %}
+      </div>
+      {% empty %}
+      <div class="empty-state compact"><b>No accounts</b></div>
+      {% endfor %}
     </div>
   </div>
   <div class="panel">
