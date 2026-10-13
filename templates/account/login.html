@@ -1,4 +1,4 @@
-{% load static socialaccount %}
+{% load static %}
 <!doctype html>
 <html lang="en">
     <head>
@@ -77,7 +77,7 @@
 
                     {% if google_enabled %}
                         <div class="auth-divider"><span>or continue with</span></div>
-                        <form method="post" action="{% provider_login_url 'google' process='login' %}">
+                        <form method="post" action="{% url 'google_login' %}?process=login">
                             {% csrf_token %}
                             <button class="button google-button" type="submit">
                                 <span class="google-g">G</span> Continue with Google

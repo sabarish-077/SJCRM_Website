@@ -1,16 +1,19 @@
 import csv
 from io import StringIO
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import get_hasher
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.http import HttpResponse
 from django.test import RequestFactory, TestCase, override_settings
 from orbit_crm.settings import database_config
 from django.urls import reverse
 
 from .forms import form_for
 from .models import AuditEvent, Company, Contact, Deal, Lead, Team
+from .security import SecurityHeadersMiddleware
 from .views import server_error
 
 
@@ -178,6 +181,30 @@ class DatabaseConfigurationTests(TestCase):
         self.assertEqual(config["OPTIONS"]["sslmode"], "require")
         self.assertIsNone(config["OPTIONS"]["prepare_threshold"])
         self.assertEqual(config["CONN_MAX_AGE"], 0)
+
+
+class SecurityPolicyTests(TestCase):
+    def test_google_login_form_posts_to_a_relative_same_host_url(self):
+        with patch.dict("os.environ", {
+            "GOOGLE_OAUTH_CLIENT_ID": "test-client",
+            "GOOGLE_OAUTH_CLIENT_SECRET": "test-secret",
+        }):
+            response = self.client.get(reverse("login"))
+
+        self.assertContains(response, 'action="/accounts/google/login/?process=login"')
+
+    @override_settings(DEBUG=False, CSRF_TRUSTED_ORIGINS=["https://preview.example.test/"])
+    def test_form_action_allows_only_same_site_and_configured_trusted_origins(self):
+        middleware = SecurityHeadersMiddleware(lambda request: HttpResponse("ok"))
+        response = middleware(RequestFactory().get("/login/"))
+
+        form_action = next(
+            directive.strip()
+            for directive in response["Content-Security-Policy"].split(";")
+            if directive.strip().startswith("form-action ")
+        )
+        self.assertEqual(form_action, "form-action 'self' https://preview.example.test")
+        self.assertNotIn("google.com", form_action)
 
 
 class ProductionErrorPageTests(TestCase):

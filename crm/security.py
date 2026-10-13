@@ -9,12 +9,17 @@ class SecurityHeadersMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
         response.headers["Cache-Control"] = "private, no-store, max-age=0"
-        form_action = "form-action 'self'"
+        form_action_sources = ["'self'"]
         if settings.DEBUG:
-            # allauth can build the Google endpoint from the Django Site record.
-            # Permit both local development hostnames while retaining a strict
-            # same-origin policy for every deployed environment.
-            form_action += " http://127.0.0.1:8000 http://localhost:8000"
+            form_action_sources.extend(("http://127.0.0.1:8000", "http://localhost:8000"))
+        # OAuth login forms may use an absolute URL based on the configured
+        # deployment host. Permit only origins Django already trusts for CSRF.
+        form_action_sources.extend(
+            origin.rstrip("/")
+            for origin in settings.CSRF_TRUSTED_ORIGINS
+            if origin.startswith(("https://", "http://"))
+        )
+        form_action = "form-action " + " ".join(dict.fromkeys(form_action_sources))
         response.headers.setdefault(
             "Content-Security-Policy",
             "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; "
