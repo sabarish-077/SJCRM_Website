@@ -54,6 +54,7 @@ class Lead(OwnedRecord):
     phone = models.CharField(max_length=40, blank=True)
     company_name = models.CharField(max_length=180, blank=True)
     source = models.CharField(max_length=100, blank=True)
+    remarks = models.CharField(max_length=2000, blank=True)
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.NEW, db_index=True)
     class Meta: ordering = ["-updated_at"]
     def __str__(self): return self.name

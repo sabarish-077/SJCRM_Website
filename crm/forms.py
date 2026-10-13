@@ -3,7 +3,7 @@ from django.db.models import Q
 from .models import Campaign, Company, Contact, Deal, Lead, SupportCase, Task, Team, User
 
 FORM_MAP = {
-    "leads": (Lead, ["name", "email", "phone", "company_name", "source", "status"]),
+    "leads": (Lead, ["name", "email", "phone", "company_name", "source", "remarks", "status"]),
     "contacts": (Contact, ["name", "email", "phone", "title", "company"]),
     "companies": (Company, ["name", "website", "industry", "phone"]),
     "deals": (Deal, ["title", "company", "contact", "amount", "stage", "expected_close"]),
@@ -36,6 +36,8 @@ class CRMRecordForm(forms.ModelForm):
                 self.fields["team"].initial = user.team
         for name, field in self.fields.items():
             field.widget.attrs["class"] = "form-control"
+            if name == "remarks":
+                field.widget = forms.Textarea(attrs={"class": "form-control", "rows": 5, "placeholder": "Add notes about this lead..."})
             if isinstance(field, forms.DateField): field.widget = forms.DateInput(attrs={"type": "date", "class": "form-control"})
             if isinstance(field, forms.DecimalField): field.widget.attrs["step"] = "0.01"
         for name in ("company", "contact", "deal", "support_case", "contacts"):

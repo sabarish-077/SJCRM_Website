@@ -12,7 +12,12 @@
                 team_count }} team{{ team_count|pluralize }} in this workspace</small></span><span
             class="settings-arrow">→</span></a><a class="settings-card" href="{% url 'audit_log' %}"><span
             class="settings-icon green-icon">◷</span><span><b>Security audit</b><small>Read recent account and record
-                changes</small></span><span class="settings-arrow">→</span></a></div>
+                changes</small></span><span class="settings-arrow">→</span></a><a class="settings-card"
+        href="{% url 'download_backup' %}"><span class="settings-icon purple-icon">↓</span><span><b>Download data backup</b><small>Save CRM records and audit history as a ZIP</small></span><span
+            class="settings-arrow">→</span></a></div>
+<div class="notice-card"><b>About this backup</b>
+    <p>The ZIP includes CRM records, teams, users, campaign links, and audit history. Passwords, login sessions, OAuth tokens, and deployment secrets are excluded. Store the file securely; use Supabase database backups for full recovery.</p>
+</div>
 <div class="notice-card"><b>Deployment security</b>
     <p>Keep Supabase database credentials, Django secret keys, and Google OAuth secrets in Vercel environment variables.
         Never place them in browser code or commit them to the project.</p>

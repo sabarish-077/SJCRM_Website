@@ -13,6 +13,7 @@ urlpatterns = [
     path("dashboard/", views.dashboard, name="dashboard"),
     path("reports/", views.reports, name="reports"),
     path("settings/", views.settings_page, name="settings"),
+    path("settings/backup/", views.download_backup, name="download_backup"),
     path("account/", views.my_account, name="my_account"),
     path("audit/", views.audit_log, name="audit_log"),
     path("search/", views.global_search, name="global_search"),

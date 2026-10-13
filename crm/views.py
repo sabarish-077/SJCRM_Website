@@ -1,5 +1,8 @@
 import csv
+import io
 import os
+import tempfile
+import zipfile
 from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth import login
@@ -9,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.db.models import Q, Sum
-from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.http import FileResponse, Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.core.exceptions import ValidationError
@@ -215,6 +218,73 @@ def my_account(request):
 def settings_page(request):
     if not is_crm_admin(request.user): return HttpResponse("Not authorized", status=403)
     return render(request, "crm/settings.html", {"user_count": get_user_model().objects.filter(is_active=True).count(), "team_count": Team.objects.count()})
+
+@login_required
+def download_backup(request):
+    if not is_crm_admin(request.user): return HttpResponse("Not authorized", status=403)
+
+    UserModel = get_user_model()
+    backup_tables = [
+        ("teams.csv", Team, None),
+        ("users.csv", UserModel, (
+            "id", "username", "email", "first_name", "last_name", "role", "team_id",
+            "is_active", "is_staff", "is_superuser", "date_joined", "last_login",
+        )),
+        ("companies.csv", Company, None),
+        ("contacts.csv", Contact, None),
+        ("leads.csv", Lead, None),
+        ("deals.csv", Deal, None),
+        ("support_cases.csv", SupportCase, None),
+        ("tasks.csv", Task, None),
+        ("campaigns.csv", Campaign, None),
+        ("audit_events.csv", AuditEvent, None),
+    ]
+    backup_file = tempfile.SpooledTemporaryFile(max_size=8 * 1024 * 1024, mode="w+b")
+    with zipfile.ZipFile(backup_file, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for filename, model, selected_fields in backup_tables:
+            fields = selected_fields or tuple(field.attname for field in model._meta.concrete_fields)
+            with archive.open(filename, "w") as compressed_csv:
+                text_file = io.TextIOWrapper(compressed_csv, encoding="utf-8-sig", newline="", write_through=True)
+                writer = csv.writer(text_file)
+                writer.writerow(fields)
+                for row in model.objects.order_by("pk").values_list(*fields).iterator(chunk_size=1000):
+                    writer.writerow([_backup_csv_value(value) for value in row])
+                text_file.flush()
+                text_file.detach()
+
+        with archive.open("campaign_contacts.csv", "w") as compressed_csv:
+            text_file = io.TextIOWrapper(compressed_csv, encoding="utf-8-sig", newline="", write_through=True)
+            writer = csv.writer(text_file)
+            writer.writerow(("campaign_id", "contact_id"))
+            links = Campaign.objects.order_by("pk").values_list("pk", "contacts__pk")
+            for campaign_id, contact_id in links.iterator(chunk_size=1000):
+                if contact_id is not None:
+                    writer.writerow((campaign_id, contact_id))
+            text_file.flush()
+            text_file.detach()
+
+        archive.writestr(
+            "README.txt",
+            "SJCRM data export\n"
+            "Contains workspace teams, users, CRM records, campaign-contact links, and audit events as CSV files.\n"
+            "User password hashes, login sessions, OAuth tokens, and deployment secrets are intentionally excluded.\n"
+            "This export is not a full database restore. Keep it private; use Supabase backups for full recovery.\n",
+        )
+
+    backup_file.seek(0)
+    return FileResponse(
+        backup_file, as_attachment=True, filename="sjcrm-data-backup.zip", content_type="application/zip",
+    )
+
+
+def _backup_csv_value(value):
+    if value is None:
+        return ""
+    # Preserve numeric zero and false while still blocking spreadsheet formula injection.
+    text = str(value)
+    if isinstance(value, str) and text.lstrip(" \t\r\n\v\f\x00").startswith(("=", "+", "-", "@")):
+        return "'" + text
+    return text
 
 @login_required
 def manage_teams(request):
