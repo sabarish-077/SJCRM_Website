@@ -1,5 +1,6 @@
 import csv
 import io
+import logging
 import os
 import tempfile
 import zipfile
@@ -8,9 +9,9 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import PasswordResetForm
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from django.contrib.sites.models import Site
 from django.db.models import Q, Sum
 from django.http import FileResponse, Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -31,6 +32,8 @@ MODULES = {
     "tasks": ("Tasks", Task, ["title", "status", "due_date", "owner"]),
     "campaigns": ("Campaigns", Campaign, ["title", "channel", "status", "budget", "target_contacts", "responses", "conversions", "revenue", "owner"]),
 }
+
+logger = logging.getLogger(__name__)
 
 
 def page_not_found(request, exception):
@@ -356,17 +359,38 @@ def manage_users(request):
             new_user.set_password(secrets.token_urlsafe(48))
             new_user.save(update_fields=["password"])
             reset = PasswordResetForm({"email": email})
-            if reset.is_valid() and (os.environ.get("EMAIL_HOST") or os.environ.get("DJANGO_DEBUG", "false").lower() == "true"):
+            email_backend = settings.EMAIL_BACKEND
+            email_ready = (
+                email_backend != "django.core.mail.backends.console.EmailBackend"
+                and (
+                    email_backend != "django.core.mail.backends.smtp.EmailBackend"
+                    or all((settings.EMAIL_HOST, settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD))
+                )
+            )
+            if not email_ready:
+                messages.warning(
+                    request,
+                    "Account created, but no email was sent because delivery is not configured. Configure the production email settings; the member can then request a link with Forgot password.",
+                )
+            elif reset.is_valid():
                 try:
-                    current_site = Site.objects.get_current()
-                    current_site.domain = request.get_host()
-                    current_site.name = "SJCRM"
-                    current_site.save(update_fields=["domain", "name"])
-                    reset.save(request=request, use_https=request.is_secure(), email_template_name="account/password_reset_email.txt")
+                    reset.save(
+                        request=request,
+                        domain_override=request.get_host(),
+                        use_https=request.is_secure(),
+                        email_template_name="account/password_reset_email.txt",
+                    )
                 except Exception:
-                    messages.warning(request, "Account created, but the setup email could not be sent. Check email settings.")
+                    logger.exception("Password setup email delivery failed for newly invited account %s", email)
+                    messages.warning(
+                        request,
+                        "Account created, but the setup email could not be delivered. Check the production email settings and provider logs.",
+                    )
+                else:
+                    messages.success(request, f"Account created and password setup email sent to {email}.")
+            else:
+                messages.warning(request, "Account created, but Django could not prepare a password setup email for this address.")
             AuditEvent.objects.create(actor=request.user, module="users", record_id=new_user.pk, action="invited", summary=f"Invited {email} as {role}")
-            messages.success(request, "Account created. A password setup link was sent if email delivery is configured.")
         return redirect("manage_users")
     return render(request, "crm/users.html", {"users": UserModel.objects.select_related("team").order_by("email"), "teams": Team.objects.all()})
 
