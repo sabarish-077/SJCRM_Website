@@ -149,6 +149,9 @@ def vercel_trusted_origins(environ):
 
 
 CSRF_TRUSTED_ORIGINS = vercel_trusted_origins(os.environ)
+# Vercel's stable production alias is not always present in its generated
+# deployment environment variables, so trust the exact production origin too.
+CSRF_TRUSTED_ORIGINS.append("https://sjcrm-website.vercel.app")
 CSRF_TRUSTED_ORIGINS += [v.strip() for v in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if v.strip()]
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_HTTPONLY = True
