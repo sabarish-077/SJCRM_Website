@@ -372,7 +372,7 @@ def manage_users(request):
                     request,
                     "Account created, but no email was sent because delivery is not configured. Configure the production email settings; the member can then request a link with Forgot password.",
                 )
-            elif reset.is_valid():
+            elif reset.is_valid() and any(reset.get_users(email)):
                 try:
                     reset.save(
                         request=request,
@@ -387,7 +387,11 @@ def manage_users(request):
                         "Account created, but the setup email could not be delivered. Check the production email settings and provider logs.",
                     )
                 else:
-                    messages.success(request, f"Account created and password setup email sent to {email}.")
+                    logger.info("Password setup email accepted by the configured backend for invited user id %s", new_user.pk)
+                    messages.success(
+                        request,
+                        f"Account created. The email service accepted the setup message for {email}; check Inbox and Spam for delivery.",
+                    )
             else:
                 messages.warning(request, "Account created, but Django could not prepare a password setup email for this address.")
             AuditEvent.objects.create(actor=request.user, module="users", record_id=new_user.pk, action="invited", summary=f"Invited {email} as {role}")
