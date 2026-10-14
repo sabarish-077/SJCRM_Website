@@ -448,6 +448,29 @@ def remove_user(request, pk):
     return redirect("manage_users")
 
 @login_required
+@require_POST
+def enable_user(request, pk):
+    if not is_crm_admin(request.user): return HttpResponse("Not authorized", status=403)
+    UserModel = get_user_model()
+    member = get_object_or_404(UserModel, pk=pk)
+    if member.is_superuser:
+        messages.error(request, "Superuser accounts can only be changed in Django administration.")
+    elif member.is_active:
+        messages.info(request, "That member already has access.")
+    else:
+        member.is_active = True
+        member.save(update_fields=["is_active"])
+        AuditEvent.objects.create(
+            actor=request.user,
+            module="users",
+            record_id=member.pk,
+            action="enabled",
+            summary=f"Restored access for {member.email}",
+        )
+        messages.success(request, f"Access restored for {member.email}.")
+    return redirect("manage_users")
+
+@login_required
 def global_search(request):
     q = request.GET.get("q", "").strip()[:100]
     results = []

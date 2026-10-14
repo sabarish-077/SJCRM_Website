@@ -25,6 +25,7 @@ urlpatterns = [
     path("settings/users/", views.manage_users, name="manage_users"),
     path("settings/users/<int:pk>/edit/", views.edit_user, name="edit_user"),
     path("settings/users/<int:pk>/remove/", views.remove_user, name="remove_user"),
+    path("settings/users/<int:pk>/enable/", views.enable_user, name="enable_user"),
     path("<slug:module>/", views.record_list, name="record_list"),
     path("<slug:module>/new/", views.record_edit, name="record_new"),
     path("<slug:module>/<int:pk>/edit/", views.record_edit, name="record_edit"),

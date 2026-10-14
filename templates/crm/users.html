@@ -32,6 +32,11 @@
             {% csrf_token %}
             <button class="icon-action danger" type="submit" aria-label="Remove {{ member.email }}">×</button>
           </form>
+          {% elif not member.is_active %}
+          <form method="post" action="{% url 'enable_user' member.pk %}" data-confirm="Restore access for {{ member.email }}?">
+            {% csrf_token %}
+            <button class="button secondary" type="submit">Enable</button>
+          </form>
           {% endif %}
         </span>
         {% endif %}
